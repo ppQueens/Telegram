@@ -114,7 +114,6 @@ import org.telegram.ui.web.WebBrowserSettings;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.security.Permission;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -152,6 +151,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
     private int settingsRow;
     private int directShareRow;
     private int sensitiveContentRow;
+    private int showMessageFullDateTime;
     private int raiseToSpeakRow;
     private int raiseToListenRow;
     private int nextMediaTapRow;
@@ -576,6 +576,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
         raiseToListenRow = -1;
         nextMediaTapRow = -1;
         sendByEnterRow = -1;
+        showMessageFullDateTime = -1;
         saveToGalleryOption1Row = -1;
         saveToGalleryOption2Row = -1;
         saveToGallerySectionRow = -1;
@@ -690,6 +691,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                 sensitiveContentRow = rowCount++;
             }
             sendByEnterRow = rowCount++;
+            showMessageFullDateTime = rowCount++;
             distanceRow = rowCount++;
             otherSectionRow = rowCount++;
         } else {
@@ -1105,7 +1107,17 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                 if (view instanceof TextCheckCell) {
                     ((TextCheckCell) view).setChecked(!send);
                 }
-            } else if (position == raiseToSpeakRow) {
+            } else if (position == showMessageFullDateTime) {
+                SharedPreferences preferences = MessagesController.getGlobalMainSettings();
+                boolean show = preferences.getBoolean("show_message_full_datetime", false);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putBoolean("show_message_full_datetime", !show);
+                editor.commit();
+                if (view instanceof TextCheckCell) {
+                    ((TextCheckCell) view).setChecked(!show);
+                }
+            }
+            else if (position == raiseToSpeakRow) {
                 SharedConfig.toggleRaiseToSpeak();
                 if (view instanceof TextCheckCell) {
                     ((TextCheckCell) view).setChecked(SharedConfig.raiseToSpeak);
@@ -2588,6 +2600,9 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                     } else if (position == sendByEnterRow) {
                         SharedPreferences preferences = MessagesController.getGlobalMainSettings();
                         textCheckCell.setTextAndCheck(getString("SendByEnter", R.string.SendByEnter), preferences.getBoolean("send_by_enter", false), true);
+                    } else if (position == showMessageFullDateTime) {
+                        SharedPreferences preferences = MessagesController.getGlobalMainSettings();
+                        textCheckCell.setTextAndCheck(getString(R.string.ShowMessageFullDateTime), preferences.getBoolean("show_message_full_datetime", false), true);
                     } else if (position == raiseToSpeakRow) {
                         textCheckCell.setTextAndValueAndCheck(getString("RaiseToSpeak", R.string.RaiseToSpeak), getString("RaiseToSpeakInfo", R.string.RaiseToSpeakInfo), SharedConfig.raiseToSpeak, true, true);
                     } else if (position == raiseToListenRow) {
@@ -2738,7 +2753,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                 return TYPE_HEADER;
             } else if (position == automaticBrightnessRow) {
                 return TYPE_BRIGHTNESS;
-            } else if (position == scheduleLocationRow || position == sendByEnterRow ||
+            } else if (position == scheduleLocationRow || position == sendByEnterRow || position == showMessageFullDateTime ||
                     position == raiseToSpeakRow || position == raiseToListenRow || position == pauseOnRecordRow ||
                     position == directShareRow || position == chatBlurRow || position == pauseOnMediaRow || position == nextMediaTapRow || position == sensitiveContentRow) {
                 return TYPE_TEXT_CHECK;
