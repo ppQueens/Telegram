@@ -155,6 +155,21 @@ public class LocaleController {
         return formatterYear;
     }
 
+    private volatile FastDateFormat formatterFull;
+    public FastDateFormat getFormatterFull() {
+        if (formatterFull == null) {
+            synchronized (this) {
+                if (formatterFull == null) {
+                    final Locale locale = currentLocale == null ? Locale.getDefault() : currentLocale;
+                    final String dtFormat = (is24HourFormat ? "HH:mm" : "h:mm a") + " " + "dd.MM.yyyy";
+
+                    formatterFull = createFormatter(locale, dtFormat, dtFormat);
+                }
+            }
+        }
+        return formatterFull;
+    }
+
     private volatile FastDateFormat formatterYearMax;
     public FastDateFormat getFormatterYearMax() {
         if (formatterYearMax == null) {

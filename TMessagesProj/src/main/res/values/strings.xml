@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="AppName">Telegram</string>
+    <string name="AppName">cTelegram</string>
     <string name="AppNameBeta">Telegram Beta</string>
     <string name="LanguageName">English</string>
     <string name="English">English</string>
@@ -7956,6 +7956,7 @@
     <string name="EnterPIN">Enter your PIN</string>
     <string name="AppLocked">Telegram Locked</string>
     <string name="ShowSensitiveContent">Show 18+ Content</string>
+    <string name="ShowMessageFullDateTime">Show message\'s full datetime</string>
     <string name="ShowSensitiveContentInfo">Do not hide media that contain content suitable only for adults</string>
     <string name="ConfirmSensitiveContentTitle">18+ Content</string>
     <string name="ConfirmSensitiveContentText">Confirm that you are over 18 years old and update your settings to see potentially explicit and sensitive content.</string>
