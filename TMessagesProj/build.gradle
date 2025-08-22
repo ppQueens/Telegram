@@ -70,6 +70,12 @@ dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 }
 
+rootProject.ext {
+    RELEASE_STORE_PASSWORD = getProps("RELEASE_STORE_PASSWORD")
+    RELEASE_KEY_ALIAS   = getProps("RELEASE_KEY_ALIAS")
+    RELEASE_KEY_PASSWORD   = getProps("RELEASE_KEY_PASSWORD")
+}
+
 def isWindows = String.valueOf(DefaultNativePlatform.currentOperatingSystem.toFamilyName() == OperatingSystemFamily.WINDOWS)
 android {
     compileSdkVersion 34
@@ -133,6 +139,8 @@ android {
             buildConfigField "boolean", "DEBUG_PRIVATE_VERSION", "true"
             buildConfigField "boolean", "BUILD_HOST_IS_WINDOWS", isWindows
             buildConfigField "int", "VERSION_NUM", "0"
+            buildConfigField "int", "APP_ID", getProps("APP_ID")
+            buildConfigField "String", "APP_HASH", "\"" + getProps("APP_HASH") + "\""
         }
 
         HA_private {
@@ -148,6 +156,8 @@ android {
             buildConfigField "boolean", "DEBUG_PRIVATE_VERSION", "true"
             buildConfigField "boolean", "BUILD_HOST_IS_WINDOWS", isWindows
             buildConfigField "int", "VERSION_NUM", "1"
+            buildConfigField "int", "APP_ID", getProps("APP_ID")
+            buildConfigField "String", "APP_HASH", "\"" + getProps("APP_HASH") + "\""
         }
 
         HA_public {
@@ -163,6 +173,8 @@ android {
             buildConfigField "boolean", "DEBUG_PRIVATE_VERSION", "false"
             buildConfigField "boolean", "BUILD_HOST_IS_WINDOWS", isWindows
             buildConfigField "int", "VERSION_NUM", "4"
+            buildConfigField "int", "APP_ID", getProps("APP_ID")
+            buildConfigField "String", "APP_HASH", "\"" + getProps("APP_HASH") + "\""
         }
 
         HA_hardcore {
@@ -178,6 +190,8 @@ android {
             buildConfigField "boolean", "DEBUG_PRIVATE_VERSION", "true"
             buildConfigField "boolean", "BUILD_HOST_IS_WINDOWS", isWindows
             buildConfigField "int", "VERSION_NUM", "5"
+            buildConfigField "int", "APP_ID", getProps("APP_ID")
+            buildConfigField "String", "APP_HASH", "\"" + getProps("APP_HASH") + "\""
         }
 
         standalone {
@@ -193,6 +207,8 @@ android {
             buildConfigField "boolean", "DEBUG_PRIVATE_VERSION", "false"
             buildConfigField "boolean", "BUILD_HOST_IS_WINDOWS", isWindows
             buildConfigField "int", "VERSION_NUM", "6"
+            buildConfigField "int", "APP_ID", getProps("APP_ID")
+            buildConfigField "String", "APP_HASH", "\"" + getProps("APP_HASH") + "\""
         }
 
         release {
@@ -209,6 +225,8 @@ android {
             buildConfigField "boolean", "DEBUG_PRIVATE_VERSION", "false"
             buildConfigField "boolean", "BUILD_HOST_IS_WINDOWS", isWindows
             buildConfigField "int", "VERSION_NUM", "7"
+            buildConfigField "int", "APP_ID", getProps("APP_ID")
+            buildConfigField "String", "APP_HASH", "\"" + getProps("APP_HASH") + "\""
         }
     }
     namespace 'org.telegram.messenger'
