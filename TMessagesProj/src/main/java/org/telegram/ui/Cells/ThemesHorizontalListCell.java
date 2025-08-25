@@ -63,6 +63,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class ThemesHorizontalListCell extends RecyclerListView implements NotificationCenter.NotificationCenterDelegate {
 
@@ -811,7 +813,8 @@ public class ThemesHorizontalListCell extends RecyclerListView implements Notifi
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        int[] accounts = UserConfig.getStartedAccounts();
+        for (Integer a : accounts) {
             NotificationCenter.getInstance(a).addObserver(this, NotificationCenter.fileLoaded);
             NotificationCenter.getInstance(a).addObserver(this, NotificationCenter.fileLoadFailed);
         }
@@ -820,7 +823,8 @@ public class ThemesHorizontalListCell extends RecyclerListView implements Notifi
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        int[] accounts = UserConfig.getStartedAccounts();
+        for (Integer a : accounts) {
             NotificationCenter.getInstance(a).removeObserver(this, NotificationCenter.fileLoaded);
             NotificationCenter.getInstance(a).removeObserver(this, NotificationCenter.fileLoadFailed);
         }

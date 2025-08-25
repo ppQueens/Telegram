@@ -50,6 +50,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.ClickableSpan;
 import android.util.Base64;
+import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.ActionMode;
 import android.view.Gravity;
@@ -230,7 +231,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -591,7 +595,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 int freeAccounts = 0;
                 Integer availableAccount = null;
                 for (int a = UserConfig.MAX_ACCOUNT_COUNT - 1; a >= 0; a--) {
-                    if (!UserConfig.getInstance(a).isClientActivated()) {
+                    if (!UserConfig.getInstance(a).isClientActivated() && !UserConfig.isClientPending(a)) {
                         freeAccounts++;
                         if (availableAccount == null) {
                             availableAccount = a;
@@ -1530,11 +1534,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
     private void switchToAvailableAccountOrLogout() {
         int account = -1;
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
-            if (UserConfig.getInstance(a).isClientActivated()) {
-                account = a;
-                break;
-            }
+        for (Integer a : UserConfig.getStartedAccounts()) {
+            account = a;
+            break;
         }
         if (termsOfServiceView != null) {
             termsOfServiceView.setVisibility(View.GONE);

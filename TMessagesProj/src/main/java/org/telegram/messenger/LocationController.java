@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 @SuppressLint("MissingPermission")
 public class LocationController extends BaseController implements NotificationCenter.NotificationCenterDelegate, ILocationServiceProvider.IAPIConnectionCallbacks, ILocationServiceProvider.IAPIOnConnectionFailedListener {
@@ -940,7 +942,8 @@ public class LocationController extends BaseController implements NotificationCe
 
     public static int getLocationsCount() {
         int count = 0;
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        int[] accounts = UserConfig.getStartedAccounts();
+        for (Integer a : accounts) {
             count += LocationController.getInstance(a).sharingLocationsUI.size();
         }
         return count;

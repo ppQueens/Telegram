@@ -89,6 +89,8 @@ import org.telegram.ui.LocationActivity;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class FragmentContextView extends FrameLayout implements NotificationCenter.NotificationCenterDelegate, VoIPService.StateListener {
     public final static int STYLE_NOT_SET = -1,
@@ -708,7 +710,8 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
                 }
                 builder.setPositiveButton(getString(R.string.Stop), (dialogInterface, i) -> {
                     if (fragment instanceof DialogsActivity) {
-                        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                        int[] accounts = UserConfig.getStartedAccounts();
+                        for (Integer a : accounts) {
                             LocationController.getInstance(a).removeAllLocationSharings();
                         }
                     } else {
@@ -767,7 +770,8 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
                     did = chatActivity.getDialogId();
                     account = fragment.getCurrentAccount();
                 } else if (LocationController.getLocationsCount() == 1) {
-                    for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                    int[] accounts = UserConfig.getStartedAccounts();
+                    for (Integer a : accounts) {
                         ArrayList<LocationController.SharingLocationInfo> arrayList = LocationController.getInstance(a).sharingLocationsUI;
                         if (!arrayList.isEmpty()) {
                             LocationController.SharingLocationInfo info = LocationController.getInstance(a).sharingLocationsUI.get(0);
@@ -1301,7 +1305,8 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
             NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.liveLocationsChanged);
             NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.liveLocationsCacheChanged);
         } else {
-            for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+            int[] accounts = UserConfig.getStartedAccounts();
+            for (Integer a : accounts) {
                 NotificationCenter.getInstance(a).removeObserver(this, NotificationCenter.messagePlayingDidReset);
                 NotificationCenter.getInstance(a).removeObserver(this, NotificationCenter.messagePlayingPlayStateChanged);
                 NotificationCenter.getInstance(a).removeObserver(this, NotificationCenter.messagePlayingDidStart);
@@ -1337,7 +1342,8 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
             }
             checkLiveLocation(true);
         } else {
-            for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+            int[] accounts = UserConfig.getStartedAccounts();
+            for (Integer a : accounts) {
                 NotificationCenter.getInstance(a).addObserver(this, NotificationCenter.messagePlayingDidReset);
                 NotificationCenter.getInstance(a).addObserver(this, NotificationCenter.messagePlayingPlayStateChanged);
                 NotificationCenter.getInstance(a).addObserver(this, NotificationCenter.messagePlayingDidStart);
@@ -1573,7 +1579,8 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
                 String param;
                 String str;
                 ArrayList<LocationController.SharingLocationInfo> infos = new ArrayList<>();
-                for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                int[] accounts = UserConfig.getStartedAccounts();
+                for (Integer a : accounts) {
                     infos.addAll(LocationController.getInstance(a).sharingLocationsUI);
                 }
                 if (infos.size() == 1) {

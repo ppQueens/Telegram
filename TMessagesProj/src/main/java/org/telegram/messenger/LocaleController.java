@@ -53,6 +53,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class LocaleController {
 
@@ -3210,7 +3212,8 @@ public class LocaleController {
                     }
                 }, ConnectionsManager.RequestFlagWithoutLogin);
             } else {
-                for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                int[] accounts = UserConfig.getStartedAccounts();
+                for (Integer a : accounts) {
                     ConnectionsManager.setLangCode(localeInfo.getLangCode());
                 }
                 FileLog.d("applyRemoteLanguage getLangPack");

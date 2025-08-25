@@ -50,7 +50,9 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Executor;
 
 import javax.crypto.Cipher;
@@ -496,7 +498,8 @@ public class BotBiometry {
     public static void clear() {
         Context context = ApplicationLoader.applicationContext;
         if (context == null) return;
-        for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; ++i) {
+        int[] accounts = UserConfig.getStartedAccounts();
+        for (Integer i : accounts) {
             final SharedPreferences prefs = context.getSharedPreferences(PREF + i, Activity.MODE_PRIVATE);
             prefs.edit().clear().apply();
         }

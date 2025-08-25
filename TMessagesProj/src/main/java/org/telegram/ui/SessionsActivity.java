@@ -79,6 +79,8 @@ import org.telegram.ui.Components.voip.CellFlickerDrawable;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class SessionsActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
 
@@ -313,7 +315,7 @@ public class SessionsActivity extends BaseFragment implements NotificationCenter
                                 }
                             });
 
-                            for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                            for (Integer a : UserConfig.getStartedAccounts()) {
                                 UserConfig userConfig = UserConfig.getInstance(a);
                                 if (!userConfig.isClientActivated()) {
                                     continue;

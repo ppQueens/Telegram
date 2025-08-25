@@ -20,6 +20,8 @@ import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.LaunchActivity;
 
 import java.util.ArrayList;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class LocationSharingService extends Service implements NotificationCenter.NotificationCenterDelegate {
 
@@ -39,7 +41,8 @@ public class LocationSharingService extends Service implements NotificationCente
         runnable = () -> {
             handler.postDelayed(runnable, 1000);
             Utilities.stageQueue.postRunnable(() -> {
-                for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                int[] accounts = UserConfig.getStartedAccounts();
+                for (Integer a : accounts) {
                     LocationController.getInstance(a).update();
                 }
             });
@@ -79,7 +82,8 @@ public class LocationSharingService extends Service implements NotificationCente
 
     private ArrayList<LocationController.SharingLocationInfo> getInfos() {
         ArrayList<LocationController.SharingLocationInfo> infos = new ArrayList<>();
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        int[] accounts = UserConfig.getStartedAccounts();
+        for (Integer a : accounts) {
             ArrayList<LocationController.SharingLocationInfo> arrayList = LocationController.getInstance(a).sharingLocationsUI;
             if (!arrayList.isEmpty()) {
                 infos.addAll(arrayList);

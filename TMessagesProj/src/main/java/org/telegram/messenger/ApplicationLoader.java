@@ -52,11 +52,15 @@ import org.telegram.ui.LauncherIconController;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class ApplicationLoader extends Application {
 
     public static ApplicationLoader applicationLoaderInstance;
+    public static BroadcastReceiver networkStateReceiver;
 
     @SuppressLint("StaticFieldLeak")
     public static volatile Context applicationContext;
@@ -181,6 +185,57 @@ public class ApplicationLoader extends Application {
         return new File("/data/data/org.telegram.messenger/files");
     }
 
+//    public static synchronized void initNetworkReceiver(){
+////        if (networkStateReceiver != null){
+////            ApplicationLoader.applicationContext.unregisterReceiver(networkStateReceiver);
+////        }
+//
+//        networkStateReceiver = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                try {
+//                    currentNetworkInfo = connectivityManager.getActiveNetworkInfo();
+//                } catch (Throwable ignore) {
+//
+//                }
+//
+//                boolean isSlow = isConnectionSlow();
+//                for (Integer a : UserConfig.getStartedAccounts()) {
+//                    ConnectionsManager.getInstance(a).checkConnection();
+//                    FileLoader.getInstance(a).onNetworkChanged(isSlow);
+//                }
+//            }
+//        };
+//
+//        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+//        ApplicationLoader.applicationContext.registerReceiver(networkStateReceiver, filter);
+//    }
+//
+    public static void initControllers(int acc){
+        UserConfig config = UserConfig.getInstance(acc);
+        config.loadConfig();
+//        FileLog.d(String.valueOf(config.isClientActivated()));
+
+//        if (onlyActivated && !config.isClientActivated()){
+//            return;
+//        }
+
+        MessagesController.getInstance(acc);
+        if (acc == 0) {
+            SharedConfig.pushStringStatus = "__FIREBASE_GENERATING_SINCE_" + ConnectionsManager.getInstance(acc).getCurrentTime() + "__";
+        } else {
+            ConnectionsManager.getInstance(acc);
+        }
+        TLRPC.User user = config.getCurrentUser();
+        if (user != null) {
+            MessagesController.getInstance(acc).putUser(user, true);
+            SendMessagesHelper.getInstance(acc).checkUnsentMessages();
+        }
+
+        ContactsController.getInstance(acc).checkAppAccount();
+        DownloadController.getInstance(acc);
+    }
+
     public static void postInitApplication() {
         if (applicationInited || applicationContext == null) {
             return;
@@ -206,7 +261,7 @@ public class ApplicationLoader extends Application {
                     }
 
                     boolean isSlow = isConnectionSlow();
-                    for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                    for (Integer a : UserConfig.getStartedAccounts()) {
                         ConnectionsManager.getInstance(a).checkConnection();
                         FileLoader.getInstance(a).onNetworkChanged(isSlow);
                     }
@@ -239,7 +294,7 @@ public class ApplicationLoader extends Application {
 
         SharedConfig.loadConfig();
         SharedPrefsHelper.init(applicationContext);
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) { //TODO improve account
+        for (Integer a : UserConfig.getStartedAccounts()) {
             UserConfig.getInstance(a).loadConfig();
             MessagesController.getInstance(a);
             if (a == 0) {
@@ -261,7 +316,7 @@ public class ApplicationLoader extends Application {
         }
 
         MediaController.getInstance();
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) { //TODO improve account
+        for (Integer a : UserConfig.getStartedAccounts()) { //TODO improve account
             ContactsController.getInstance(a).checkAppAccount();
             DownloadController.getInstance(a);
         }

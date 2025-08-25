@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class BillingUtilities {
     private static final String CURRENCY_FILE = "currencies.json";
@@ -210,7 +212,8 @@ public class BillingUtilities {
 
     private static AccountInstance findAccountById(long accountId) {
         AccountInstance result = null;
-        for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; i++) {
+        int[] accounts = UserConfig.getStartedAccounts();
+        for (Integer i : accounts) {
             AccountInstance acc = AccountInstance.getInstance(i);
             if (acc.getUserConfig().getClientUserId() == accountId) {
                 result = acc;

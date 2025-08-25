@@ -92,6 +92,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 
@@ -1666,8 +1668,8 @@ public class NotificationsController extends BaseController {
 
     private int getTotalAllUnreadCount() {
         int count = 0;
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
-            if (!UserConfig.getInstance(a).isClientActivated() || !SharedConfig.showNotificationsForAllAccounts && UserConfig.selectedAccount != a) {
+        for (Integer a : UserConfig.getStartedAccounts()) {
+            if (!SharedConfig.showNotificationsForAllAccounts && UserConfig.selectedAccount != a) {
                 continue;
             }
             NotificationsController controller = getInstance(a);

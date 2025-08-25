@@ -30,6 +30,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CountDownLatch;
 
 @Keep
@@ -60,7 +62,7 @@ public class PushListenerController {
             }
             SharedConfig.pushString = token;
             SharedConfig.pushType = pushType;
-            for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+            for (Integer a : UserConfig.getStartedAccounts()) {
                 UserConfig userConfig = UserConfig.getInstance(a);
                 userConfig.registeredForPush = false;
                 userConfig.saveConfig(false);
@@ -200,7 +202,7 @@ public class PushListenerController {
                     }
                     int account = UserConfig.selectedAccount;
                     boolean foundAccount = false;
-                    for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                    for (Integer a : UserConfig.getStartedAccounts()) {
                         if (UserConfig.getInstance(a).getClientUserId() == accountUserId) {
                             account = a;
                             foundAccount = true;
@@ -1583,11 +1585,9 @@ public class PushListenerController {
     }
 
     private static void onDecryptError() {
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
-            if (UserConfig.getInstance(a).isClientActivated()) {
-                ConnectionsManager.onInternalPushReceived(a);
-                ConnectionsManager.getInstance(a).resumeNetworkMaybe();
-            }
+        for (Integer a : UserConfig.getStartedAccounts()) {
+            ConnectionsManager.onInternalPushReceived(a);
+            ConnectionsManager.getInstance(a).resumeNetworkMaybe();
         }
         countDownLatch.countDown();
     }

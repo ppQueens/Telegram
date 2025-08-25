@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class ProxyRotationController implements NotificationCenter.NotificationCenterDelegate {
     private final static ProxyRotationController INSTANCE = new ProxyRotationController();
@@ -92,7 +94,7 @@ public class ProxyRotationController implements NotificationCenter.NotificationC
     }
 
     private void initInternal() {
-        for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; i++) {
+        for (Integer i :  UserConfig.getStartedAccounts()) {
             NotificationCenter.getInstance(i).addObserver(this, NotificationCenter.didUpdateConnectionState);
         }
         NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.proxyCheckDone);

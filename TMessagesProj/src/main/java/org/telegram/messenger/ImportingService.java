@@ -15,13 +15,16 @@ import android.os.IBinder;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
+
 public class ImportingService extends Service implements NotificationCenter.NotificationCenterDelegate {
 
     private NotificationCompat.Builder builder;
 
     public ImportingService() {
         super();
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        for (Integer a : UserConfig.getStartedAccounts()) {
             NotificationCenter.getInstance(a).addObserver(this, NotificationCenter.historyImportProgressChanged);
             NotificationCenter.getInstance(a).addObserver(this, NotificationCenter.stickersImportProgressChanged);
         }
@@ -39,7 +42,7 @@ public class ImportingService extends Service implements NotificationCenter.Noti
 
         }
         NotificationManagerCompat.from(ApplicationLoader.applicationContext).cancel(5);
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        for (Integer a : UserConfig.getStartedAccounts()) {
             NotificationCenter.getInstance(a).removeObserver(this, NotificationCenter.historyImportProgressChanged);
             NotificationCenter.getInstance(a).removeObserver(this, NotificationCenter.stickersImportProgressChanged);
         }
@@ -58,7 +61,7 @@ public class ImportingService extends Service implements NotificationCenter.Noti
     }
 
     private boolean hasImportingHistory() {
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        for (Integer a : UserConfig.getStartedAccounts()) {
             if (SendMessagesHelper.getInstance(a).isImportingHistory()) {
                 return true;
             }
@@ -67,7 +70,7 @@ public class ImportingService extends Service implements NotificationCenter.Noti
     }
 
     private boolean hasImportingStickers() {
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        for (Integer a : UserConfig.getStartedAccounts()) {
             if (SendMessagesHelper.getInstance(a).isImportingStickers()) {
                 return true;
             }

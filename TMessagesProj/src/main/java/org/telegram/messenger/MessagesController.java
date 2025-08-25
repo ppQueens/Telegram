@@ -117,7 +117,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -15008,9 +15010,10 @@ public class MessagesController extends BaseController implements NotificationCe
             TL_account.unregisterDevice req = new TL_account.unregisterDevice();
             req.token = SharedConfig.pushString;
             req.token_type = SharedConfig.pushType;
-            for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+            int[] accounts = UserConfig.getStartedAccounts();
+            for (Integer a : accounts) {
                 UserConfig userConfig = UserConfig.getInstance(a);
-                if (a != currentAccount && userConfig.isClientActivated()) {
+                if (a != currentAccount) {
                     req.other_uids.add(userConfig.getClientUserId());
                 }
             }
@@ -15053,11 +15056,10 @@ public class MessagesController extends BaseController implements NotificationCe
         if (shouldHandle) {
             if (UserConfig.selectedAccount == currentAccount) {
                 int account = -1;
-                for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
-                    if (UserConfig.getInstance(a).isClientActivated()) {
+                int[] accounts = UserConfig.getStartedAccounts();
+                for (Integer a : accounts) {
                         account = a;
                         break;
-                    }
                 }
                 if (account != -1) {
                     UserConfig.selectedAccount = account;
@@ -15091,9 +15093,10 @@ public class MessagesController extends BaseController implements NotificationCe
         req.token = regid;
         req.no_muted = false;
         req.secret = SharedConfig.pushAuthKey;
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+
+        for (Integer a : UserConfig.getStartedAccounts()) {
             UserConfig userConfig = UserConfig.getInstance(a);
-            if (a != currentAccount && userConfig.isClientActivated()) {
+            if (a != currentAccount) {
                 long uid = userConfig.getClientUserId();
                 req.other_uids.add(uid);
                 if (BuildVars.LOGS_ENABLED) {
@@ -20082,6 +20085,12 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public SponsoredMessagesInfo getSponsoredMessages(long dialogId) {
+        SharedPreferences preferences = MessagesController.getGlobalMainSettings();
+
+        if (preferences.getBoolean("disable_ads", false)){
+            return null;
+        }
+
         SponsoredMessagesInfo info = sponsoredMessages.get(dialogId);
         if (info != null && (info.loading || Math.abs(SystemClock.elapsedRealtime() - info.loadTime) <= 5 * 60 * 1000)) {
             return info;

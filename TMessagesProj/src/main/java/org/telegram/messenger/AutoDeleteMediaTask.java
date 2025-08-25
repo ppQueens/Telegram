@@ -10,7 +10,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class AutoDeleteMediaTask {
 
@@ -31,13 +33,12 @@ public class AutoDeleteMediaTask {
             }
             boolean hasExceptions = false;
             ArrayList<CacheByChatsController> cacheByChatsControllers = new ArrayList<>();
-            for (int account = 0; account < UserConfig.MAX_ACCOUNT_COUNT; account++) {
-                if (UserConfig.getInstance(account).isClientActivated()) {
+            int[] accounts = UserConfig.getStartedAccounts();
+            for (Integer account : accounts) {
                     CacheByChatsController cacheByChatsController = UserConfig.getInstance(account).getMessagesController().getCacheByChatsController();
                     cacheByChatsControllers.add(cacheByChatsController);
                     if (cacheByChatsController.getKeepMediaExceptionsByDialogs().size() > 0) {
                         hasExceptions = true;
-                    }
                 }
             }
 

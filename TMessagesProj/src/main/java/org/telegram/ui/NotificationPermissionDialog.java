@@ -40,6 +40,9 @@ import org.telegram.ui.Components.CubicBezierInterpolator;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.RLottieImageView;
 
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
+
 public class NotificationPermissionDialog extends BottomSheet implements NotificationCenter.NotificationCenterDelegate {
 
     private CounterView counterView;
@@ -110,7 +113,7 @@ public class NotificationPermissionDialog extends BottomSheet implements Notific
         });
         linearLayout.addView(textView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 48, 14, 14, 14, 10));
 
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; ++a) {
+        for (Integer a : UserConfig.getStartedAccounts()) {
             try {
                 NotificationCenter.getInstance(a).addObserver(this, NotificationCenter.updateInterfaces);
             } catch (Exception ignore) {}
@@ -129,7 +132,8 @@ public class NotificationPermissionDialog extends BottomSheet implements Notific
 
     public void updateCounter() {
         int counter = 0;
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; ++a) {
+
+        for (Integer a : UserConfig.getStartedAccounts()) {
             MessagesStorage messagesStorage = MessagesStorage.getInstance(a);
             if (messagesStorage != null) {
                 counter += messagesStorage.getMainUnreadCount();
@@ -159,7 +163,7 @@ public class NotificationPermissionDialog extends BottomSheet implements Notific
             whenGranted = null;
             askLater();
         }
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; ++a) {
+        for (Integer a : UserConfig.getStartedAccounts()) {
             try {
                 NotificationCenter.getInstance(a).removeObserver(this, NotificationCenter.updateInterfaces);
             } catch (Exception ignore) {}

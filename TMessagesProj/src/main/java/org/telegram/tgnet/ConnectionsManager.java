@@ -65,8 +65,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
+import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -628,7 +630,7 @@ public class ConnectionsManager extends BaseController {
 
     public static void setLangCode(String langCode) {
         langCode = langCode.replace('_', '-').toLowerCase();
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        for (Integer a : UserConfig.getStartedAccounts()) {
             native_setLangCode(a, langCode);
         }
     }
@@ -645,14 +647,16 @@ public class ConnectionsManager extends BaseController {
             String tag = type == PushListenerController.PUSH_TYPE_FIREBASE ? "FIREBASE" : "HUAWEI";
             pushString = SharedConfig.pushStringStatus = "__" + tag + "_GENERATING_SINCE_" + getInstance(0).getCurrentTime() + "__";
         }
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+
+        for (Integer a : UserConfig.getStartedAccounts()) {
             native_setRegId(a, pushString);
         }
     }
 
     public static void setSystemLangCode(String langCode) {
         langCode = langCode.replace('_', '-').toLowerCase();
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+
+        for (Integer a : UserConfig.getStartedAccounts()) {
             native_setSystemLangCode(a, langCode);
         }
     }
@@ -911,7 +915,7 @@ public class ConnectionsManager extends BaseController {
             secret = "";
         }
 
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        for (Integer a : UserConfig.getStartedAccounts()) {
             if (enabled && !TextUtils.isEmpty(address)) {
                 native_setProxySettings(a, address, port, username, password, secret);
             } else {

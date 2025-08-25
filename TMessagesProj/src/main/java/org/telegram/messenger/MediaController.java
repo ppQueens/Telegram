@@ -122,7 +122,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CountDownLatch;
 
 public class MediaController implements AudioManager.OnAudioFocusChangeListener, NotificationCenter.NotificationCenterDelegate, SensorEventListener {
@@ -1401,7 +1403,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
         fileBuffer = ByteBuffer.allocateDirect(1920);
 
         AndroidUtilities.runOnUIThread(() -> {
-            for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+            for (Integer a : UserConfig.getStartedAccounts()) {
                 NotificationCenter.getInstance(a).addObserver(MediaController.this, NotificationCenter.fileLoaded);
                 NotificationCenter.getInstance(a).addObserver(MediaController.this, NotificationCenter.httpFileDidLoad);
                 NotificationCenter.getInstance(a).addObserver(MediaController.this, NotificationCenter.didReceiveNewMessages);
@@ -1585,7 +1587,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
         cleanupPlayer(true, true);
         audioInfo = null;
         playMusicAgain = false;
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        for (Integer a : UserConfig.getStartedAccounts()) {
             DownloadController.getInstance(a).cleanup();
         }
         videoConvertQueue.clear();

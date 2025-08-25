@@ -37,6 +37,8 @@ import org.telegram.ui.Components.SideMenultItemAnimator;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter {
 
@@ -228,10 +230,9 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter {
 
     private void resetItems() {
         accountNumbers.clear();
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
-            if (UserConfig.getInstance(a).isClientActivated()) {
-                accountNumbers.add(a);
-            }
+        int[] accounts = UserConfig.getStartedAccounts();
+        for (Integer a : accounts) {
+            accountNumbers.add(a);
         }
         Collections.sort(accountNumbers, (o1, o2) -> {
             long l1 = UserConfig.getInstance(o1).loginTime;

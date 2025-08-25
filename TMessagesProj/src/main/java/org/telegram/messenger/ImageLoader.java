@@ -87,7 +87,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
@@ -2161,7 +2163,8 @@ public class ImageLoader {
         AndroidUtilities.createEmptyFile(new File(cachePath, ".nomedia"));
         mediaDirs.put(FileLoader.MEDIA_DIR_CACHE, cachePath);
 
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        int[] accounts = UserConfig.getStartedAccounts();
+        for (Integer a : accounts) {
             final int currentAccount = a;
             FileLoader.getInstance(a).setDelegate(new FileLoader.FileLoaderDelegate() {
                 @Override

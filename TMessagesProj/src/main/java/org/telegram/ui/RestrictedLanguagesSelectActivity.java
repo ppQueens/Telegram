@@ -54,6 +54,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class RestrictedLanguagesSelectActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
 
@@ -555,7 +557,8 @@ public class RestrictedLanguagesSelectActivity extends BaseFragment implements N
                 edit.putInt("translate_button_restricted_languages_version", LAST_DO_NOT_TRANSLATE_VERSION).apply();
                 invalidateRestrictedLanguages();
 
-                for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; ++i) {
+                int[] accounts = UserConfig.getStartedAccounts();
+                for (Integer i : accounts) {
                     final int account = i;
                     try {
                         MessagesController.getInstance(account).getTranslateController().checkRestrictedLanguagesUpdate();

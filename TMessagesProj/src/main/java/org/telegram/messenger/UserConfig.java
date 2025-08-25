@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
 import android.util.Base64;
+import android.util.Log;
 import android.util.LongSparseArray;
 
 import org.telegram.tgnet.ConnectionsManager;
@@ -19,15 +20,24 @@ import org.telegram.tgnet.SerializedData;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.tgnet.tl.TL_account;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class UserConfig extends BaseController {
 
     public static int selectedAccount;
-    public final static int MAX_ACCOUNT_DEFAULT_COUNT = 3;
-    public final static int MAX_ACCOUNT_COUNT = 4;
+    public final static int MAX_ACCOUNT_DEFAULT_COUNT = 11;
+    public final static int MAX_ACCOUNT_COUNT = 12;
 
     private final Object sync = new Object();
+    public static final Object lock = new Object();
     private volatile boolean configLoaded;
     private TLRPC.User currentUser;
     public boolean registeredForPush;
@@ -97,13 +107,73 @@ public class UserConfig extends BaseController {
     }
 
     public static int getActivatedAccountsCount() {
-        int count = 0;
-        for (int a = 0; a < MAX_ACCOUNT_COUNT; a++) {
-            if (AccountInstance.getInstance(a).getUserConfig().isClientActivated()) {
-                count++;
+        return activatedAccounts.size();
+    }
+
+    private static volatile ConcurrentSkipListSet<Integer> activatedAccounts = new ConcurrentSkipListSet<>();
+//    static {activatedAccounts.add(0);}
+    private static volatile ConcurrentSkipListSet<Integer> pendingAccounts = new ConcurrentSkipListSet<>();
+    // todo fill activiatedAccounts
+
+    public static int[] getStartedAccounts() {
+//        synchronized (lock) {
+//            Iterator<Integer> it = Stream
+//                    .concat(activatedAccounts.stream(), pendingAccounts.stream())
+//                    .distinct()
+//                    .sorted()
+//                    .iterator();
+//            return () -> it; // функция возвращает итератор, это и есть Iterable
+//        }
+        Log.d("ANRDBG", "lock in getStartedAccounts");
+        synchronized (lock) {
+            int[] tmp = new int[UserConfig.MAX_ACCOUNT_COUNT];
+            int n = 0;
+            for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; i++) {
+                if (pendingAccounts.contains(i) || activatedAccounts.contains(i)) tmp[n++] = i;
             }
+            Log.d("ANRDBG", "lock out getStartedAccounts");
+            return java.util.Arrays.copyOf(tmp, n);
         }
-        return count;
+
+    }
+
+    public static void addPendingAccount(int acc){
+//        synchronized (lock) {
+            pendingAccounts.add(acc);
+
+
+//            ApplicationLoader.initNetworkReceiver();
+//            ApplicationLoader.initControllers(acc);
+//            ProxyRotationController.init();
+//            ConnectionsManager.setProxySettings(false, "", 1080, "", "", "");
+
+//        }
+        ConnectionsManager.getInstance(acc);
+    }
+
+    public static void removePendingAccount(int acc){
+//        synchronized (lock) {
+            pendingAccounts.remove(acc);
+//        }
+    }
+    public static void addActivatedAccount(int acc){
+//        synchronized (lock) {
+            activatedAccounts.add(acc);
+//        }
+    }
+
+    public static int[] getActivatedAccounts() {
+        Log.d("ANRDBG", "lock in getActivatedAccounts");
+
+        synchronized (lock) {
+            int[] tmp = new int[UserConfig.MAX_ACCOUNT_COUNT];
+            int n = 0;
+            for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; i++) {
+                if (activatedAccounts.contains(i)) tmp[n++] = i;
+            }
+            Log.d("ANRDBG", "lock out getActivatedAccounts");
+            return java.util.Arrays.copyOf(tmp, n);
+        }
     }
 
     public UserConfig(int instance) {
@@ -111,8 +181,8 @@ public class UserConfig extends BaseController {
     }
 
     public static boolean hasPremiumOnAccounts() {
-        for (int a = 0; a < MAX_ACCOUNT_COUNT; a++) {
-            if (AccountInstance.getInstance(a).getUserConfig().isClientActivated() && AccountInstance.getInstance(a).getUserConfig().getUserConfig().isPremium()) {
+        for (Integer a : UserConfig.getStartedAccounts()) {
+            if (AccountInstance.getInstance(a).getUserConfig().getUserConfig().isPremium()) {
                 return true;
             }
         }
@@ -227,13 +297,18 @@ public class UserConfig extends BaseController {
     }
 
     public static boolean isValidAccount(int num) {
-         return num >= 0 && num < UserConfig.MAX_ACCOUNT_COUNT && getInstance(num).isClientActivated();
+         return num >= 0 && num < UserConfig.MAX_ACCOUNT_COUNT && (pendingAccounts.contains(num) || activatedAccounts.contains(num));
     }
 
     public boolean isClientActivated() {
         synchronized (sync) {
             return currentUser != null;
         }
+    }
+    public static boolean isClientPending(int acc) {
+//        synchronized () {
+            return pendingAccounts.contains(acc);
+//        }
     }
 
     public long getClientUserId() {
@@ -257,6 +332,7 @@ public class UserConfig extends BaseController {
     public void setCurrentUser(TLRPC.User user) {
         synchronized (sync) {
             TLRPC.User oldUser = currentUser;
+            addActivatedAccount(currentAccount);
             currentUser = user;
             clientUserId = user.id;
             checkPremiumSelf(oldUser, user);
@@ -368,6 +444,8 @@ public class UserConfig extends BaseController {
             if (currentUser != null) {
                 checkPremiumSelf(null, currentUser);
                 clientUserId = currentUser.id;
+                addActivatedAccount(currentAccount);
+
             }
             configLoaded = true;
         }
@@ -488,15 +566,15 @@ public class UserConfig extends BaseController {
         lastHintsSyncTime = (int) (System.currentTimeMillis() / 1000) - 25 * 60 * 60;
         resetSavedPassword();
         boolean hasActivated = false;
-        for (int a = 0; a < MAX_ACCOUNT_COUNT; a++) {
-            if (AccountInstance.getInstance(a).getUserConfig().isClientActivated()) {
-                hasActivated = true;
-                break;
-            }
+
+        if (!activatedAccounts.isEmpty()) {
+            hasActivated = true;
         }
+
         if (!hasActivated) {
             SharedConfig.clearConfig();
         }
+        activatedAccounts.remove(currentAccount);
         saveConfig(true);
     }
 

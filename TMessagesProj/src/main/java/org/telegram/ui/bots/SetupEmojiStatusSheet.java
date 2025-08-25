@@ -52,6 +52,9 @@ import org.telegram.ui.Components.Text;
 import org.telegram.ui.LaunchActivity;
 import org.telegram.ui.PremiumPreviewFragment;
 
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
+
 public class SetupEmojiStatusSheet {
 
     public static void show(int currentAccount, TLRPC.User bot, long document_id, int duration, Utilities.Callback2<String, TLRPC.Document> whenDone) {
@@ -499,7 +502,8 @@ public class SetupEmojiStatusSheet {
     public static void clear() {
         Context context = ApplicationLoader.applicationContext;
         if (context == null) return;
-        for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; ++i) {
+        int[] accounts = UserConfig.getStartedAccounts();
+        for (Integer i : accounts) {
             final SharedPreferences prefs = context.getSharedPreferences(PREF + i, Activity.MODE_PRIVATE);
             prefs.edit().clear().apply();
         }

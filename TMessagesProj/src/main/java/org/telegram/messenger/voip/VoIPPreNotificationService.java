@@ -43,6 +43,8 @@ import org.telegram.ui.VoIPFragment;
 import org.telegram.ui.VoIPPermissionActivity;
 
 import java.util.ArrayList;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class VoIPPreNotificationService { // } extends Service implements AudioManager.OnAudioFocusChangeListener {
 
@@ -614,7 +616,8 @@ public class VoIPPreNotificationService { // } extends Service implements AudioM
         nm.cancel(VoIPService.ID_INCOMING_CALL_PRENOTIFICATION);
         stopRinging();
         if (!answered) {
-            for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; ++i) {
+            int[] accounts = UserConfig.getStartedAccounts();
+            for (Integer i : accounts) {
                 MessagesController.getInstance(i).ignoreSetOnline = false;
             }
         }

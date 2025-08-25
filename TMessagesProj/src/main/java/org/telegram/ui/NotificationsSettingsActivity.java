@@ -70,6 +70,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class NotificationsSettingsActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
 
@@ -694,7 +696,8 @@ public class NotificationsSettingsActivity extends BaseFragment implements Notif
                 editor.putBoolean("AllAccounts", !enabled);
                 editor.commit();
                 SharedConfig.showNotificationsForAllAccounts = !enabled;
-                for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                int[] accounts = UserConfig.getStartedAccounts();
+                for (Integer a : accounts) {
                     if (SharedConfig.showNotificationsForAllAccounts) {
                         NotificationsController.getInstance(a).showNotifications();
                     } else {

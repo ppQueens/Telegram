@@ -80,6 +80,8 @@ import org.telegram.ui.Components.TypingDotsDrawable;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class PopupNotificationActivity extends Activity implements NotificationCenter.NotificationCenterDelegate {
 
@@ -162,8 +164,8 @@ public class PopupNotificationActivity extends Activity implements NotificationC
         Theme.createDialogsResources(this);
         Theme.createChatResources(this, false);
 
-        AndroidUtilities.fillStatusBarHeight(this, false);
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        int[] accounts = UserConfig.getStartedAccounts();
+        for (Integer a : accounts) {
             NotificationCenter.getInstance(a).addObserver(this, NotificationCenter.appDidLogout);
             NotificationCenter.getInstance(a).addObserver(this, NotificationCenter.updateInterfaces);
             NotificationCenter.getInstance(a).addObserver(this, NotificationCenter.messagePlayingProgressDidChanged);
@@ -1197,7 +1199,8 @@ public class PopupNotificationActivity extends Activity implements NotificationC
             }
             popupMessages.addAll(NotificationsController.getInstance(account).popupReplyMessages);
         } else {
-            for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+            int[] accounts = UserConfig.getStartedAccounts();
+            for (Integer a : accounts) {
                 if (UserConfig.getInstance(a).isClientActivated()) {
                     popupMessages.addAll(NotificationsController.getInstance(a).popupMessages);
                 }
@@ -1467,7 +1470,8 @@ public class PopupNotificationActivity extends Activity implements NotificationC
         } else if (id == NotificationCenter.pushMessagesUpdated) {
             if (!isReply) {
                 popupMessages.clear();
-                for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                int[] accounts = UserConfig.getStartedAccounts();
+                for (Integer a : accounts) {
                     if (UserConfig.getInstance(a).isClientActivated()) {
                         popupMessages.addAll(NotificationsController.getInstance(a).popupMessages);
                     }
@@ -1583,7 +1587,8 @@ public class PopupNotificationActivity extends Activity implements NotificationC
         if (isReply) {
             popupMessages.clear();
         }
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        int[] accounts = UserConfig.getStartedAccounts();
+        for (Integer a : accounts) {
             NotificationCenter.getInstance(a).removeObserver(this, NotificationCenter.appDidLogout);
             NotificationCenter.getInstance(a).removeObserver(this, NotificationCenter.updateInterfaces);
             NotificationCenter.getInstance(a).removeObserver(this, NotificationCenter.messagePlayingProgressDidChanged);

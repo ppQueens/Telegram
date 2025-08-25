@@ -12,11 +12,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
+
 public class StopLiveLocationReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        int[] accounts = UserConfig.getStartedAccounts();
+        for (Integer a : accounts) {
             LocationController.getInstance(a).removeAllLocationSharings();
         }
     }

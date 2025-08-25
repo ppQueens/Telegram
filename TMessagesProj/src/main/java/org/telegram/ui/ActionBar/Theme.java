@@ -149,6 +149,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CountDownLatch;
 
 public class Theme {
@@ -4705,7 +4707,7 @@ public class Theme {
         int remoteVersion = themeConfig.getInt("remote_version", 0);
         int appRemoteThemesVersion = 1;
         if (remoteVersion == appRemoteThemesVersion) {
-            for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+            for (Integer a : UserConfig.getStartedAccounts()) {
                 remoteThemesHash[a] = themeConfig.getLong("2remoteThemesHash" + (a != 0 ? a : ""), 0);
                 lastLoadingThemesTime[a] = themeConfig.getInt("lastLoadingThemesTime" + (a != 0 ? a : ""), 0);
             }
@@ -6971,7 +6973,7 @@ public class Theme {
             }
             editor.putString("themes2", array.toString());
         }
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        for (Integer a : UserConfig.getStartedAccounts()) {
             editor.putLong("2remoteThemesHash" + (a != 0 ? a : ""), remoteThemesHash[a]);
             editor.putInt("lastLoadingThemesTime" + (a != 0 ? a : ""), lastLoadingThemesTime[a]);
         }

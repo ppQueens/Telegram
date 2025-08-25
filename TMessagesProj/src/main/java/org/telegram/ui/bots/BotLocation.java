@@ -64,7 +64,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class BotLocation {
 
@@ -558,7 +560,8 @@ public class BotLocation {
     public static void clear() {
         Context context = ApplicationLoader.applicationContext;
         if (context == null) return;
-        for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; ++i) {
+        int[] accounts = UserConfig.getStartedAccounts();
+        for (Integer i : accounts) {
             final SharedPreferences prefs = context.getSharedPreferences(PREF + i, Activity.MODE_PRIVATE);
             prefs.edit().clear().apply();
         }

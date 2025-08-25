@@ -465,6 +465,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
     public LoginActivity(int account) {
         super();
         currentAccount = account;
+        UserConfig.addPendingAccount(currentAccount);
         newAccount = true;
     }
 
@@ -1693,6 +1694,9 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
     private boolean pendingSwitchingAccount;
 
     private void onAuthSuccess(TLRPC.TL_auth_authorization res, boolean afterSignup) {
+        UserConfig.addActivatedAccount(currentAccount);
+        UserConfig.removePendingAccount(currentAccount);
+
         MessagesController.getInstance(currentAccount).cleanup();
         ConnectionsManager.getInstance(currentAccount).setUserId(res.user.id);
         UserConfig.getInstance(currentAccount).clearConfig();
@@ -3038,7 +3042,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
             String phone = PhoneFormat.stripExceptNumbers("" + codeField.getText() + phoneField.getText());
             if (activityMode == MODE_LOGIN) {
                 if (getParentActivity() instanceof LaunchActivity) {
-                    for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                    for (Integer a : UserConfig.getStartedAccounts()) {
                         UserConfig userConfig = UserConfig.getInstance(a);
                         if (!userConfig.isClientActivated()) {
                             continue;
