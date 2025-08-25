@@ -280,7 +280,7 @@ public class LanguageSelectActivity extends BaseFragment implements Notification
 //                                            }
 //                                        }
 //                                        if (languages2.isEmpty()) return;
-//                                        for (int account = 0; account < UserConfig.MAX_ACCOUNT_COUNT; ++account) {
+//                                        for (int account : UserConfig.getActivatedAccounts()) {
 //                                            MessagesController.getInstance(account).getTranslateController().clearDownloadingModels();
 //                                        }
 //                                        BaseFragment lastFragment = LaunchActivity.getSafeLastFragment();

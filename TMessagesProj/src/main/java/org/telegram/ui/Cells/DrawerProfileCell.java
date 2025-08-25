@@ -478,7 +478,7 @@ public class DrawerProfileCell extends FrameLayout implements NotificationCenter
         status.attach();
         updateColors();
         NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.emojiLoaded);
-        for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; i++){
+        for (int i : UserConfig.getActivatedAccounts()){
             NotificationCenter.getInstance(i).addObserver(this, NotificationCenter.currentUserPremiumStatusChanged);
         }
     }
@@ -488,7 +488,7 @@ public class DrawerProfileCell extends FrameLayout implements NotificationCenter
         super.onDetachedFromWindow();
         status.detach();
         NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.emojiLoaded);
-        for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; i++){
+        for (int i : UserConfig.getActivatedAccounts()){
             NotificationCenter.getInstance(i).removeObserver(this, NotificationCenter.currentUserPremiumStatusChanged);
         }
         if (lastAccount >= 0) {

@@ -106,6 +106,12 @@ public class UserConfig extends BaseController {
         if (!activatedAccounts.isEmpty() || !pendingAccounts.isEmpty()) {
             return;
         }
+        if (ApplicationLoader.applicationContext == null) {
+            if (activatedAccounts.isEmpty()) {
+                activatedAccounts.add(selectedAccount);
+            }
+            return;
+        }
         SharedPreferences prefs = ApplicationLoader.applicationContext.getSharedPreferences("userconfig_global", Context.MODE_PRIVATE);
         String act = prefs.getString("activatedAccounts", null);
         if (act != null && act.length() > 0) {
@@ -673,10 +679,16 @@ public class UserConfig extends BaseController {
     }
 
     public static int getProductionAccount() {
-        for (int i = -1; i < MAX_ACCOUNT_COUNT; ++i) {
-            final int account = i < 0 ? selectedAccount : i;
-            if (getInstance(account).isClientActivated() && !ConnectionsManager.getInstance(account).isTestBackend())
+        if (getInstance(selectedAccount).isClientActivated() && !ConnectionsManager.getInstance(selectedAccount).isTestBackend()) {
+            return selectedAccount;
+        }
+        for (int account : getActivatedAccounts()) {
+            if (account == selectedAccount) {
+                continue;
+            }
+            if (getInstance(account).isClientActivated() && !ConnectionsManager.getInstance(account).isTestBackend()) {
                 return account;
+            }
         }
         return selectedAccount;
     }

@@ -108,7 +108,7 @@ public class ContactsController extends BaseController {
     private class MyContentObserver extends ContentObserver {
 
         private Runnable checkRunnable = () -> {
-            for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+            for (int a : UserConfig.getActivatedAccounts()) {
                 if (UserConfig.getInstance(a).isClientActivated()) {
                     ConnectionsManager.getInstance(a).resumeNetworkMaybe();
                     ContactsController.getInstance(a).checkContacts();
@@ -392,7 +392,7 @@ public class ContactsController extends BaseController {
                 for (int a = 0; a < accounts.length; a++) {
                     Account acc = accounts[a];
                     boolean found = false;
-                    for (int b = 0; b < UserConfig.MAX_ACCOUNT_COUNT; b++) {
+                    for (int b : UserConfig.getActivatedAccounts()) {
                         TLRPC.User user = UserConfig.getInstance(b).getCurrentUser();
                         if (user != null) {
                             if (acc.name.equals("" + user.id)) {
@@ -438,7 +438,7 @@ public class ContactsController extends BaseController {
             for (int a = 0; a < accounts.length; a++) {
                 Account acc = accounts[a];
                 boolean found = false;
-                for (int b = 0; b < UserConfig.MAX_ACCOUNT_COUNT; b++) {
+                for (int b : UserConfig.getActivatedAccounts()) {
                     TLRPC.User user = UserConfig.getInstance(b).getCurrentUser();
                     if (user != null) {
                         if (acc.name.equals("" + user.id)) {
@@ -514,7 +514,7 @@ public class ContactsController extends BaseController {
                         systemAccount = null;
                         for (int a = 0; a < accounts.length; a++) {
                             Account acc = accounts[a];
-                            for (int b = 0; b < UserConfig.MAX_ACCOUNT_COUNT; b++) {
+                            for (int b : UserConfig.getActivatedAccounts()) {
                                 TLRPC.User user = UserConfig.getInstance(b).getCurrentUser();
                                 if (user != null) {
                                     if (acc.name.equals("" + user.id)) {
