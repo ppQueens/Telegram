@@ -14,3 +14,14 @@
         for (int a : UserConfig.getActivatedAccounts()) {
             if (a != currentAccount) {
                 long uid = UserConfig.getInstance(a).getClientUserId();
+            for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                UserConfig userConfig = UserConfig.getInstance(a);
+                if (a != currentAccount && userConfig.isClientActivated()) {
+                    req.other_uids.add(userConfig.getClientUserId());
+                for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                    UserConfig userConfig = UserConfig.getInstance(a);
+                    if (a != currentAccount && userConfig.isClientActivated()) {
+        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+            UserConfig userConfig = UserConfig.getInstance(a);
+            if (a != currentAccount && userConfig.isClientActivated()) {
+                long uid = userConfig.getClientUserId();
