@@ -228,7 +228,7 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter {
 
     private void resetItems() {
         accountNumbers.clear();
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        for (int a : UserConfig.getActivatedAccounts()) {
             if (UserConfig.getInstance(a).isClientActivated()) {
                 accountNumbers.add(a);
             }

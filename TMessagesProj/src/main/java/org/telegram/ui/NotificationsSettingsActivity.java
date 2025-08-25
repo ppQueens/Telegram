@@ -694,7 +694,7 @@ public class NotificationsSettingsActivity extends BaseFragment implements Notif
                 editor.putBoolean("AllAccounts", !enabled);
                 editor.commit();
                 SharedConfig.showNotificationsForAllAccounts = !enabled;
-                for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                for (int a : UserConfig.getActivatedAccounts()) {
                     if (SharedConfig.showNotificationsForAllAccounts) {
                         NotificationsController.getInstance(a).showNotifications();
                     } else {

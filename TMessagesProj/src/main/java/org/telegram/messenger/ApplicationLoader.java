@@ -206,7 +206,7 @@ public class ApplicationLoader extends Application {
                     }
 
                     boolean isSlow = isConnectionSlow();
-                    for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                    for (int a : UserConfig.getActivatedAccounts()) {
                         ConnectionsManager.getInstance(a).checkConnection();
                         FileLoader.getInstance(a).onNetworkChanged(isSlow);
                     }
@@ -239,18 +239,18 @@ public class ApplicationLoader extends Application {
 
         SharedConfig.loadConfig();
         SharedPrefsHelper.init(applicationContext);
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) { //TODO improve account
-            UserConfig.getInstance(a).loadConfig();
-            MessagesController.getInstance(a);
-            if (a == 0) {
-                SharedConfig.pushStringStatus = "__FIREBASE_GENERATING_SINCE_" + ConnectionsManager.getInstance(a).getCurrentTime() + "__";
+        for (int account : UserConfig.getActivatedAccounts()) {
+            UserConfig.getInstance(account).loadConfig();
+            MessagesController.getInstance(account);
+            if (account == UserConfig.selectedAccount) {
+                SharedConfig.pushStringStatus = "__FIREBASE_GENERATING_SINCE_" + ConnectionsManager.getInstance(account).getCurrentTime() + "__";
             } else {
-                ConnectionsManager.getInstance(a);
+                ConnectionsManager.getInstance(account);
             }
-            TLRPC.User user = UserConfig.getInstance(a).getCurrentUser();
+            TLRPC.User user = UserConfig.getInstance(account).getCurrentUser();
             if (user != null) {
-                MessagesController.getInstance(a).putUser(user, true);
-                SendMessagesHelper.getInstance(a).checkUnsentMessages();
+                MessagesController.getInstance(account).putUser(user, true);
+                SendMessagesHelper.getInstance(account).checkUnsentMessages();
             }
         }
 
@@ -261,9 +261,9 @@ public class ApplicationLoader extends Application {
         }
 
         MediaController.getInstance();
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) { //TODO improve account
-            ContactsController.getInstance(a).checkAppAccount();
-            DownloadController.getInstance(a);
+        for (int account : UserConfig.getActivatedAccounts()) {
+            ContactsController.getInstance(account).checkAppAccount();
+            DownloadController.getInstance(account);
         }
         BillingController.getInstance().startConnection();
     }

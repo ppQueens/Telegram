@@ -56,11 +56,14 @@ public class SMSJobController implements NotificationCenter.NotificationCenterDe
     private static volatile SMSJobController[] Instance = new SMSJobController[UserConfig.MAX_ACCOUNT_COUNT];
     private static final Object[] lockObjects = new Object[UserConfig.MAX_ACCOUNT_COUNT];
     static {
-        for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; i++) {
+        for (int i : UserConfig.getActivatedAccounts()) {
             lockObjects[i] = new Object();
         }
     }
     public static SMSJobController getInstance(int num) {
+        if (lockObjects[num] == null) {
+            lockObjects[num] = new Object();
+        }
         SMSJobController localInstance = Instance[num];
         if (localInstance == null) {
             synchronized (lockObjects[num]) {

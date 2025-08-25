@@ -28,7 +28,7 @@ public class BusinessLinksController {
     private static final Object[] lockObjects = new Object[UserConfig.MAX_ACCOUNT_COUNT];
 
     static {
-        for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; i++) {
+        for (int i : UserConfig.getActivatedAccounts()) {
             lockObjects[i] = new Object();
         }
     }

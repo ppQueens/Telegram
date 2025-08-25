@@ -210,7 +210,7 @@ public class BillingUtilities {
 
     private static AccountInstance findAccountById(long accountId) {
         AccountInstance result = null;
-        for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; i++) {
+        for (int i : UserConfig.getActivatedAccounts()) {
             AccountInstance acc = AccountInstance.getInstance(i);
             if (acc.getUserConfig().getClientUserId() == accountId) {
                 result = acc;

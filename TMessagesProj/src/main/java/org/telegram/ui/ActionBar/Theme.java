@@ -4705,7 +4705,7 @@ public class Theme {
         int remoteVersion = themeConfig.getInt("remote_version", 0);
         int appRemoteThemesVersion = 1;
         if (remoteVersion == appRemoteThemesVersion) {
-            for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+            for (int a : UserConfig.getActivatedAccounts()) {
                 remoteThemesHash[a] = themeConfig.getLong("2remoteThemesHash" + (a != 0 ? a : ""), 0);
                 lastLoadingThemesTime[a] = themeConfig.getInt("lastLoadingThemesTime" + (a != 0 ? a : ""), 0);
             }
@@ -6971,7 +6971,7 @@ public class Theme {
             }
             editor.putString("themes2", array.toString());
         }
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        for (int a : UserConfig.getActivatedAccounts()) {
             editor.putLong("2remoteThemesHash" + (a != 0 ? a : ""), remoteThemesHash[a]);
             editor.putInt("lastLoadingThemesTime" + (a != 0 ? a : ""), lastLoadingThemesTime[a]);
         }

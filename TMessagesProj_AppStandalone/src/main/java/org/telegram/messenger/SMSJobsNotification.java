@@ -31,7 +31,7 @@ public class SMSJobsNotification extends Service {
 
     public static boolean check() {
         boolean shown = false;
-        for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; ++i) {
+        for (int i : UserConfig.getActivatedAccounts()) {
             shown = check(i) || shown;
         }
         return shown;

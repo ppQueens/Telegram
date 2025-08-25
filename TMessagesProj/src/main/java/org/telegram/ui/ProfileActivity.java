@@ -12853,7 +12853,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 new SearchResult(501, getString(R.string.ChangePhoneNumber), 0, () -> presentFragment(new ActionIntroActivity(ActionIntroActivity.ACTION_TYPE_CHANGE_PHONE_NUMBER))),
                 new SearchResult(502, getString(R.string.AddAnotherAccount), 0, () -> {
                     int freeAccount = -1;
-                    for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                    for (int a : UserConfig.getActivatedAccounts()) {
                         if (!UserConfig.getInstance(a).isClientActivated()) {
                             freeAccount = a;
                             break;
@@ -13399,7 +13399,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         if (stringBuilder != null && i == searchArgs.length - 1) {
                             if (result.guid == 502) {
                                 int freeAccount = -1;
-                                for (int b = 0; b < UserConfig.MAX_ACCOUNT_COUNT; b++) {
+                                for (int b : UserConfig.getActivatedAccounts()) {
                                     if (!UserConfig.getInstance(b).isClientActivated()) {
                                         freeAccount = b;
                                         break;

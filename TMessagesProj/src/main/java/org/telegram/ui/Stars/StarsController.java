@@ -99,7 +99,7 @@ public class StarsController {
     private static final Object[][] lockObjects = new Object[2][UserConfig.MAX_ACCOUNT_COUNT];
     static {
         for (int a = 0; a < 2; ++a) {
-            for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; i++) {
+            for (int i : UserConfig.getActivatedAccounts()) {
                 lockObjects[a][i] = new Object();
             }
         }

@@ -614,7 +614,7 @@ public class VoIPPreNotificationService { // } extends Service implements AudioM
         nm.cancel(VoIPService.ID_INCOMING_CALL_PRENOTIFICATION);
         stopRinging();
         if (!answered) {
-            for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; ++i) {
+            for (int i : UserConfig.getActivatedAccounts()) {
                 MessagesController.getInstance(i).ignoreSetOnline = false;
             }
         }

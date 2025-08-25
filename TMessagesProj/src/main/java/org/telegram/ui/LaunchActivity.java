@@ -588,21 +588,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 switchToAccount(((DrawerUserCell) view).getAccountNumber(), true);
                 drawerLayoutContainer.closeDrawer(false);
             } else if (view instanceof DrawerAddCell) {
-                int freeAccounts = 0;
-                Integer availableAccount = null;
-                for (int a = UserConfig.MAX_ACCOUNT_COUNT - 1; a >= 0; a--) {
-                    if (!UserConfig.getInstance(a).isClientActivated()) {
-                        freeAccounts++;
-                        if (availableAccount == null) {
-                            availableAccount = a;
-                        }
-                    }
-                }
-                if (!UserConfig.hasPremiumOnAccounts()) {
-                    freeAccounts -= (UserConfig.MAX_ACCOUNT_COUNT - UserConfig.MAX_ACCOUNT_DEFAULT_COUNT);
-                }
-                if (freeAccounts > 0 && availableAccount != null) {
-                    presentFragment(new LoginActivity(availableAccount));
+                int slot = UserConfig.requestAccountSlot();
+                if (slot >= 0) {
+                    presentFragment(new LoginActivity(slot));
                     drawerLayoutContainer.closeDrawer(false);
                 } else if (!UserConfig.hasPremiumOnAccounts()) {
                     if (actionBarLayout.getFragmentStack().size() > 0) {
@@ -1530,7 +1518,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
     private void switchToAvailableAccountOrLogout() {
         int account = -1;
-        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+        for (int a : UserConfig.getActivatedAccounts()) {
             if (UserConfig.getInstance(a).isClientActivated()) {
                 account = a;
                 break;
@@ -3037,12 +3025,20 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                         if (cursor.moveToFirst()) {
                                             long userId = cursor.getLong(cursor.getColumnIndex(ContactsContract.Data.DATA4));
                                             int accountId = Utilities.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.RawContacts.ACCOUNT_NAME)));
-                                            for (int a = -1; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
-                                                int i = a == -1 ? intentAccount[0] : a;
-                                                if ((a == -1 && MessagesStorage.getInstance(i).containsLocalDialog(userId)) || UserConfig.getInstance(i).getClientUserId() == accountId) {
-                                                    intentAccount[0] = i;
-                                                    switchToAccount(intentAccount[0], true);
-                                                    break;
+                                            int current = intentAccount[0];
+                                            if (MessagesStorage.getInstance(current).containsLocalDialog(userId) || UserConfig.getInstance(current).getClientUserId() == accountId) {
+                                                intentAccount[0] = current;
+                                                switchToAccount(intentAccount[0], true);
+                                            } else {
+                                                for (int i : UserConfig.getActivatedAccounts()) {
+                                                    if (i == current) {
+                                                        continue;
+                                                    }
+                                                    if (MessagesStorage.getInstance(i).containsLocalDialog(userId) || UserConfig.getInstance(i).getClientUserId() == accountId) {
+                                                        intentAccount[0] = i;
+                                                        switchToAccount(intentAccount[0], true);
+                                                        break;
+                                                    }
                                                 }
                                             }
                                             NotificationCenter.getInstance(intentAccount[0]).postNotificationName(NotificationCenter.closeChats);
@@ -8412,7 +8408,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 drawerLayoutContainer.setAllowOpenDrawer(false, true);
 
                 int account = -1;
-                for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                for (int a : UserConfig.getActivatedAccounts()) {
                     if (UserConfig.getInstance(a).isClientActivated()) {
                         account = a;
                         break;
@@ -8495,7 +8491,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 drawerLayoutContainer.setAllowOpenDrawer(false, true);
 
                 int account = -1;
-                for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                for (int a : UserConfig.getActivatedAccounts()) {
                     if (UserConfig.getInstance(a).isClientActivated()) {
                         account = a;
                         break;

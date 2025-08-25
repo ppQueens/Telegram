@@ -1648,6 +1648,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
         clearCurrentState();
         if (getParentActivity() instanceof LaunchActivity) {
             if (newAccount) {
+                UserConfig.activateAccount(currentAccount);
                 newAccount = false;
                 pendingSwitchingAccount = true;
                 ((LaunchActivity) getParentActivity()).switchToAccount(currentAccount, false, obj -> {
@@ -3038,7 +3039,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
             String phone = PhoneFormat.stripExceptNumbers("" + codeField.getText() + phoneField.getText());
             if (activityMode == MODE_LOGIN) {
                 if (getParentActivity() instanceof LaunchActivity) {
-                    for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                    for (int a : UserConfig.getActivatedAccounts()) {
                         UserConfig userConfig = UserConfig.getInstance(a);
                         if (!userConfig.isClientActivated()) {
                             continue;
