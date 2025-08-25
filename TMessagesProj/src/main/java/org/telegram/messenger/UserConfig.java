@@ -11,6 +11,7 @@ package org.telegram.messenger;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.LongSparseArray;
 
@@ -19,13 +20,18 @@ import org.telegram.tgnet.SerializedData;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.tgnet.tl.TL_account;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class UserConfig extends BaseController {
 
     public static int selectedAccount;
     public final static int MAX_ACCOUNT_DEFAULT_COUNT = 3;
     public final static int MAX_ACCOUNT_COUNT = 4;
+
+    private static final ArrayList<Integer> activatedAccounts = new ArrayList<>();
+    private static final ArrayList<Integer> pendingAccounts = new ArrayList<>();
 
     private final Object sync = new Object();
     private volatile boolean configLoaded;
@@ -96,14 +102,83 @@ public class UserConfig extends BaseController {
         return localInstance;
     }
 
-    public static int getActivatedAccountsCount() {
-        int count = 0;
-        for (int a = 0; a < MAX_ACCOUNT_COUNT; a++) {
-            if (AccountInstance.getInstance(a).getUserConfig().isClientActivated()) {
-                count++;
+    private static void loadGlobalAccounts() {
+        if (!activatedAccounts.isEmpty() || !pendingAccounts.isEmpty()) {
+            return;
+        }
+        SharedPreferences prefs = ApplicationLoader.applicationContext.getSharedPreferences("userconfig_global", Context.MODE_PRIVATE);
+        String act = prefs.getString("activatedAccounts", null);
+        if (act != null && act.length() > 0) {
+            for (String s : act.split(",")) {
+                try {
+                    activatedAccounts.add(Integer.parseInt(s));
+                } catch (Exception ignore) {
+                }
             }
         }
-        return count;
+        if (activatedAccounts.isEmpty()) {
+            activatedAccounts.add(selectedAccount);
+        }
+        String pend = prefs.getString("pendingAccounts", null);
+        if (pend != null && pend.length() > 0) {
+            for (String s : pend.split(",")) {
+                try {
+                    pendingAccounts.add(Integer.parseInt(s));
+                } catch (Exception ignore) {
+                }
+            }
+        }
+    }
+
+    private static void saveGlobalAccounts() {
+        SharedPreferences prefs = ApplicationLoader.applicationContext.getSharedPreferences("userconfig_global", Context.MODE_PRIVATE);
+        prefs.edit()
+                .putString("activatedAccounts", TextUtils.join(",", activatedAccounts))
+                .putString("pendingAccounts", TextUtils.join(",", pendingAccounts))
+                .apply();
+    }
+
+    public static List<Integer> getActivatedAccounts() {
+        loadGlobalAccounts();
+        return new ArrayList<>(activatedAccounts);
+    }
+
+    public static int getActivatedAccountsCount() {
+        loadGlobalAccounts();
+        return activatedAccounts.size();
+    }
+
+    public static int getPendingAccountsCount() {
+        loadGlobalAccounts();
+        return pendingAccounts.size();
+    }
+
+    public static int requestAccountSlot() {
+        loadGlobalAccounts();
+        for (int a = 0; a < MAX_ACCOUNT_COUNT; a++) {
+            if (!activatedAccounts.contains(a) && !pendingAccounts.contains(a)) {
+                pendingAccounts.add(a);
+                saveGlobalAccounts();
+                return a;
+            }
+        }
+        return -1;
+    }
+
+    public static void activateAccount(int account) {
+        loadGlobalAccounts();
+        pendingAccounts.remove((Integer) account);
+        if (!activatedAccounts.contains(account)) {
+            activatedAccounts.add(account);
+        }
+        saveGlobalAccounts();
+    }
+
+    public static void deactivateAccount(int account) {
+        loadGlobalAccounts();
+        activatedAccounts.remove((Integer) account);
+        pendingAccounts.remove((Integer) account);
+        saveGlobalAccounts();
     }
 
     public UserConfig(int instance) {
@@ -111,7 +186,7 @@ public class UserConfig extends BaseController {
     }
 
     public static boolean hasPremiumOnAccounts() {
-        for (int a = 0; a < MAX_ACCOUNT_COUNT; a++) {
+        for (int a : getActivatedAccounts()) {
             if (AccountInstance.getInstance(a).getUserConfig().isClientActivated() && AccountInstance.getInstance(a).getUserConfig().getUserConfig().isPremium()) {
                 return true;
             }
@@ -487,14 +562,8 @@ public class UserConfig extends BaseController {
         lastContactsSyncTime = (int) (System.currentTimeMillis() / 1000) - 23 * 60 * 60;
         lastHintsSyncTime = (int) (System.currentTimeMillis() / 1000) - 25 * 60 * 60;
         resetSavedPassword();
-        boolean hasActivated = false;
-        for (int a = 0; a < MAX_ACCOUNT_COUNT; a++) {
-            if (AccountInstance.getInstance(a).getUserConfig().isClientActivated()) {
-                hasActivated = true;
-                break;
-            }
-        }
-        if (!hasActivated) {
+        deactivateAccount(currentAccount);
+        if (getActivatedAccounts().isEmpty()) {
             SharedConfig.clearConfig();
         }
         saveConfig(true);

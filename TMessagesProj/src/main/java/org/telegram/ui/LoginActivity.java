@@ -1648,6 +1648,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
         clearCurrentState();
         if (getParentActivity() instanceof LaunchActivity) {
             if (newAccount) {
+                UserConfig.activateAccount(currentAccount);
                 newAccount = false;
                 pendingSwitchingAccount = true;
                 ((LaunchActivity) getParentActivity()).switchToAccount(currentAccount, false, obj -> {
