@@ -111,7 +111,6 @@ public class UserConfig extends BaseController {
     }
 
     private static volatile ConcurrentSkipListSet<Integer> activatedAccounts = new ConcurrentSkipListSet<>();
-//    static {activatedAccounts.add(0);}
     private static volatile ConcurrentSkipListSet<Integer> pendingAccounts = new ConcurrentSkipListSet<>();
     // todo fill activiatedAccounts
 
@@ -140,12 +139,6 @@ public class UserConfig extends BaseController {
     public static void addPendingAccount(int acc){
 //        synchronized (lock) {
             pendingAccounts.add(acc);
-
-
-//            ApplicationLoader.initNetworkReceiver();
-//            ApplicationLoader.initControllers(acc);
-//            ProxyRotationController.init();
-//            ConnectionsManager.setProxySettings(false, "", 1080, "", "", "");
 
 //        }
         ConnectionsManager.getInstance(acc);

@@ -185,57 +185,6 @@ public class ApplicationLoader extends Application {
         return new File("/data/data/org.telegram.messenger/files");
     }
 
-//    public static synchronized void initNetworkReceiver(){
-////        if (networkStateReceiver != null){
-////            ApplicationLoader.applicationContext.unregisterReceiver(networkStateReceiver);
-////        }
-//
-//        networkStateReceiver = new BroadcastReceiver() {
-//            @Override
-//            public void onReceive(Context context, Intent intent) {
-//                try {
-//                    currentNetworkInfo = connectivityManager.getActiveNetworkInfo();
-//                } catch (Throwable ignore) {
-//
-//                }
-//
-//                boolean isSlow = isConnectionSlow();
-//                for (Integer a : UserConfig.getStartedAccounts()) {
-//                    ConnectionsManager.getInstance(a).checkConnection();
-//                    FileLoader.getInstance(a).onNetworkChanged(isSlow);
-//                }
-//            }
-//        };
-//
-//        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-//        ApplicationLoader.applicationContext.registerReceiver(networkStateReceiver, filter);
-//    }
-//
-    public static void initControllers(int acc){
-        UserConfig config = UserConfig.getInstance(acc);
-        config.loadConfig();
-//        FileLog.d(String.valueOf(config.isClientActivated()));
-
-//        if (onlyActivated && !config.isClientActivated()){
-//            return;
-//        }
-
-        MessagesController.getInstance(acc);
-        if (acc == 0) {
-            SharedConfig.pushStringStatus = "__FIREBASE_GENERATING_SINCE_" + ConnectionsManager.getInstance(acc).getCurrentTime() + "__";
-        } else {
-            ConnectionsManager.getInstance(acc);
-        }
-        TLRPC.User user = config.getCurrentUser();
-        if (user != null) {
-            MessagesController.getInstance(acc).putUser(user, true);
-            SendMessagesHelper.getInstance(acc).checkUnsentMessages();
-        }
-
-        ContactsController.getInstance(acc).checkAppAccount();
-        DownloadController.getInstance(acc);
-    }
-
     public static void postInitApplication() {
         if (applicationInited || applicationContext == null) {
             return;
